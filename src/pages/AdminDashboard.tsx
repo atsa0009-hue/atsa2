@@ -14,10 +14,10 @@ export function AdminDashboard() {
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [formData, setFormData] = useState({
-    title: '',
+    name: '',
+    price: 0,
     description: '',
-    imageUrl: '',
-    slug: ''
+    imageUrl: ''
   });
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -80,32 +80,38 @@ export function AdminDashboard() {
     e.preventDefault();
     try {
       if (editingProduct) {
+        console.log('Updating product:', editingProduct.id);
         await updateDoc(doc(db, 'products', editingProduct.id), {
           ...formData,
           updatedAt: Date.now()
         });
+        console.log('Product updated successfully');
       } else {
+        console.log('Adding new product:', formData);
         await addDoc(collection(db, 'products'), {
           ...formData,
           createdAt: Date.now()
         });
+        console.log('Product added successfully');
       }
       setShowModal(false);
       setEditingProduct(null);
-      setFormData({ title: '', description: '', imageUrl: '', slug: '' });
+      setFormData({ name: '', price: 0, description: '', imageUrl: '' });
       setUploadedFile(null);
     } catch (error) {
-      console.error('Error saving product:', error);
+      console.error('Error saving product to Firestore:', error);
+      alert('Failed to save product. Check console for details.');
     }
   };
 
   const handleEdit = (product: any) => {
+    console.log('Editing product:', product);
     setEditingProduct(product);
     setFormData({
-      title: product.title,
+      name: product.name,
+      price: product.price || 0,
       description: product.description,
-      imageUrl: product.imageUrl,
-      slug: product.slug
+      imageUrl: product.imageUrl || ''
     });
     setUploadedFile(null);
     setShowModal(true);
@@ -114,9 +120,12 @@ export function AdminDashboard() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this product?')) {
       try {
+        console.log('Deleting product:', id);
         await deleteDoc(doc(db, 'products', id));
+        console.log('Product deleted successfully');
       } catch (error) {
-        console.error('Error deleting product:', error);
+        console.error('Error deleting product from Firestore:', error);
+        alert('Failed to delete product. Check console for details.');
       }
     }
   };
@@ -161,7 +170,7 @@ export function AdminDashboard() {
           <button
             onClick={() => {
               setEditingProduct(null);
-              setFormData({ title: '', description: '', imageUrl: '', slug: '' });
+              setFormData({ name: '', price: 0, description: '', imageUrl: '' });
               setUploadedFile(null);
               setShowModal(true);
             }}
@@ -180,9 +189,10 @@ export function AdminDashboard() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product) => (
               <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                <img src={product.imageUrl} alt={product.title} className="w-full h-48 object-cover" />
+                {product.imageUrl && <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-cover" />}
                 <div className="p-4">
-                  <h3 className="text-xl font-bold text-[#3d4f5c] mb-2">{product.title}</h3>
+                  <h3 className="text-xl font-bold text-[#3d4f5c] mb-2">{product.name}</h3>
+                  <p className="text-lg font-semibold text-green-600 mb-2">${product.price}</p>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
                   <div className="flex gap-2">
                     <button
@@ -215,21 +225,23 @@ export function AdminDashboard() {
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
                 <input
                   type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3d4f5c] focus:border-transparent"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Slug</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Price</label>
                 <input
-                  type="text"
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3d4f5c] focus:border-transparent"
                   required
                 />
@@ -338,7 +350,7 @@ export function AdminDashboard() {
                   onClick={() => {
                     setShowModal(false);
                     setEditingProduct(null);
-                    setFormData({ title: '', description: '', imageUrl: '', slug: '' });
+                    setFormData({ name: '', price: 0, description: '', imageUrl: '' });
                     setUploadedFile(null);
                   }}
                   className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"

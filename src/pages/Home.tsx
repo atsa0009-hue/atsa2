@@ -80,24 +80,21 @@ export function Home() {
           ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {displayedProducts.map((product, index) => (
-              <Link
+              <div
                 key={product.id}
-                to={`/product/${product.slug}`}
                 className="relative group animate-scaleIn"
                 style={{ animationDelay: `${index * 0.1}s`, opacity: 0 }}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-700/80 to-slate-900/80 backdrop-blur-xl rounded-lg transform transition-transform group-hover:scale-105"></div>
                 <div className="relative bg-white/90 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition">
-                  <img src={product.imageUrl} alt={product.title} className="w-full h-64 object-cover" />
+                  {product.imageUrl && <img src={product.imageUrl} alt={product.name} className="w-full h-64 object-cover" />}
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-[#3d4f5c] mb-2">{product.title}</h3>
+                    <h3 className="text-xl font-bold text-[#3d4f5c] mb-2">{product.name}</h3>
+                    <p className="text-lg font-semibold text-green-600 mb-2">${product.price}</p>
                     <p className="text-gray-600 line-clamp-3">{product.description}</p>
-                    <div className="mt-4 text-[#3d4f5c] font-semibold group-hover:underline">
-                      Learn More →
-                    </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
           )}

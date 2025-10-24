@@ -4,10 +4,11 @@ import { db } from '../config/firebase';
 
 export interface Product {
   id: string;
-  title: string;
+  name: string;
+  price: number;
   description: string;
-  imageUrl: string;
-  slug: string;
+  imageUrl?: string;
+  slug?: string;
   createdAt: number;
 }
 
@@ -16,9 +17,11 @@ export function useProducts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('Setting up Firestore listener for products collection...');
     const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
+      console.log('Products updated. Total count:', snapshot.docs.length);
       const productsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -26,7 +29,7 @@ export function useProducts() {
       setProducts(productsData);
       setLoading(false);
     }, (error) => {
-      console.error('Error fetching products:', error);
+      console.error('Error fetching products from Firestore:', error);
       setLoading(false);
     });
 

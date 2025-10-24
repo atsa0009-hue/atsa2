@@ -5,7 +5,7 @@ import { useProducts } from '../hooks/useProducts';
 export function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { products, loading } = useProducts();
-  const product = products.find(p => p.slug === slug);
+  const product = products.find(p => p.slug === slug || p.id === slug);
 
   if (loading) {
     return (
@@ -46,18 +46,21 @@ export function ProductDetail() {
         <div className="grid md:grid-cols-2 gap-12 items-start">
           <div className="relative animate-slideInLeft" style={{ opacity: 0 }}>
             <div className="sticky top-32">
-              <img
-                src={product.imageUrl}
-                alt={product.title}
-                className="w-full h-auto rounded-2xl shadow-2xl"
-              />
+              {product.imageUrl && (
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  className="w-full h-auto rounded-2xl shadow-2xl"
+                />
+              )}
             </div>
           </div>
 
           <div className="animate-slideInRight" style={{ opacity: 0 }}>
-            <h1 className="text-4xl md:text-5xl font-bold text-[#3d4f5c] mb-6">
-              {product.title}
+            <h1 className="text-4xl md:text-5xl font-bold text-[#3d4f5c] mb-4">
+              {product.name}
             </h1>
+            <p className="text-3xl font-bold text-green-600 mb-6">${product.price}</p>
             <div className="prose prose-lg max-w-none">
               <p className="text-xl text-gray-600 leading-relaxed">
                 {product.description}
@@ -122,20 +125,23 @@ export function ProductDetail() {
               .map((relatedProduct, index) => (
                 <Link
                   key={relatedProduct.id}
-                  to={`/product/${relatedProduct.slug}`}
+                  to={`/product/${relatedProduct.slug || relatedProduct.id}`}
                   className="group animate-scaleIn"
                   style={{ animationDelay: `${(index + 5) * 0.1}s`, opacity: 0 }}
                 >
                   <div className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition">
-                    <img
-                      src={relatedProduct.imageUrl}
-                      alt={relatedProduct.title}
-                      className="w-full h-48 object-cover"
-                    />
+                    {relatedProduct.imageUrl && (
+                      <img
+                        src={relatedProduct.imageUrl}
+                        alt={relatedProduct.name}
+                        className="w-full h-48 object-cover"
+                      />
+                    )}
                     <div className="p-4">
                       <h3 className="font-bold text-[#3d4f5c] group-hover:text-[#2d3f4c] transition">
-                        {relatedProduct.title}
+                        {relatedProduct.name}
                       </h3>
+                      <p className="text-green-600 font-semibold mt-1">${relatedProduct.price}</p>
                     </div>
                   </div>
                 </Link>
