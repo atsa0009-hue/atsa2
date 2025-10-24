@@ -15,7 +15,6 @@ export function AdminDashboard() {
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: '',
-    price: 0,
     description: '',
     imageUrl: ''
   });
@@ -31,20 +30,28 @@ export function AdminDashboard() {
 
   const handleFileUpload = async (file: File) => {
     if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
+      alert('Please upload an image file (PNG, JPG, GIF, etc.)');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB');
       return;
     }
 
     setUploading(true);
+    console.log('Uploading image to Firebase Storage:', file.name);
     try {
       const storageRef = ref(storage, `products/${Date.now()}_${file.name}`);
-      await uploadBytes(storageRef, file);
+      const snapshot = await uploadBytes(storageRef, file);
+      console.log('Upload successful:', snapshot);
       const downloadURL = await getDownloadURL(storageRef);
+      console.log('Download URL generated:', downloadURL);
       setFormData({ ...formData, imageUrl: downloadURL });
       setUploadedFile(file);
     } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('Failed to upload image');
+      console.error('Error uploading image to Firebase Storage:', error);
+      alert('Failed to upload image. Check console for details.');
     } finally {
       setUploading(false);
     }
@@ -96,7 +103,7 @@ export function AdminDashboard() {
       }
       setShowModal(false);
       setEditingProduct(null);
-      setFormData({ name: '', price: 0, description: '', imageUrl: '' });
+      setFormData({ name: '', description: '', imageUrl: '' });
       setUploadedFile(null);
     } catch (error) {
       console.error('Error saving product to Firestore:', error);
@@ -109,7 +116,6 @@ export function AdminDashboard() {
     setEditingProduct(product);
     setFormData({
       name: product.name,
-      price: product.price || 0,
       description: product.description,
       imageUrl: product.imageUrl || ''
     });
@@ -170,7 +176,7 @@ export function AdminDashboard() {
           <button
             onClick={() => {
               setEditingProduct(null);
-              setFormData({ name: '', price: 0, description: '', imageUrl: '' });
+              setFormData({ name: '', description: '', imageUrl: '' });
               setUploadedFile(null);
               setShowModal(true);
             }}
@@ -192,7 +198,6 @@ export function AdminDashboard() {
                 {product.imageUrl && <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-cover" />}
                 <div className="p-4">
                   <h3 className="text-xl font-bold text-[#3d4f5c] mb-2">{product.name}</h3>
-                  <p className="text-lg font-semibold text-green-600 mb-2">${product.price}</p>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
                   <div className="flex gap-2">
                     <button
@@ -230,18 +235,6 @@ export function AdminDashboard() {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3d4f5c] focus:border-transparent"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Price</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3d4f5c] focus:border-transparent"
                   required
                 />
@@ -350,7 +343,7 @@ export function AdminDashboard() {
                   onClick={() => {
                     setShowModal(false);
                     setEditingProduct(null);
-                    setFormData({ name: '', price: 0, description: '', imageUrl: '' });
+                    setFormData({ name: '', description: '', imageUrl: '' });
                     setUploadedFile(null);
                   }}
                   className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"

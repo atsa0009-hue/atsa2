@@ -1,11 +1,16 @@
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 export function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { products, loading } = useProducts();
   const product = products.find(p => p.slug === slug || p.id === slug);
+
+  const imageAnimation = useScrollAnimation();
+  const contentAnimation = useScrollAnimation();
+  const relatedAnimation = useScrollAnimation();
 
   if (loading) {
     return (
@@ -44,7 +49,7 @@ export function ProductDetail() {
 
       <main className="container mx-auto px-6 pt-32 pb-20">
         <div className="grid md:grid-cols-2 gap-12 items-start">
-          <div className="relative animate-slideInLeft" style={{ opacity: 0 }}>
+          <div ref={imageAnimation.ref} className={`relative transition-all duration-700 ${imageAnimation.isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
             <div className="sticky top-32">
               {product.imageUrl && (
                 <img
@@ -56,18 +61,17 @@ export function ProductDetail() {
             </div>
           </div>
 
-          <div className="animate-slideInRight" style={{ opacity: 0 }}>
-            <h1 className="text-4xl md:text-5xl font-bold text-[#3d4f5c] mb-4">
+          <div ref={contentAnimation.ref} className={`transition-all duration-700 ${contentAnimation.isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
+            <h1 className="text-4xl md:text-5xl font-bold text-[#3d4f5c] mb-6">
               {product.name}
             </h1>
-            <p className="text-3xl font-bold text-green-600 mb-6">${product.price}</p>
             <div className="prose prose-lg max-w-none">
               <p className="text-xl text-gray-600 leading-relaxed">
                 {product.description}
               </p>
             </div>
 
-            <div className="mt-12 p-8 bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl animate-fadeIn delay-200" style={{ opacity: 0 }}>
+            <div className={`mt-12 p-8 bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl transition-all duration-700 delay-300 ${contentAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <h2 className="text-2xl font-bold text-[#3d4f5c] mb-6">
                 Interested in this product?
               </h2>
@@ -90,7 +94,7 @@ export function ProductDetail() {
               </div>
             </div>
 
-            <div className="mt-8 animate-fadeIn delay-300" style={{ opacity: 0 }}>
+            <div className={`mt-8 transition-all duration-700 delay-500 ${contentAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <h3 className="text-xl font-bold text-[#3d4f5c] mb-4">Our Expertise</h3>
               <ul className="space-y-2 text-gray-600">
                 <li className="flex items-center gap-2">
@@ -114,8 +118,8 @@ export function ProductDetail() {
           </div>
         </div>
 
-        <section className="mt-20">
-          <h2 className="text-3xl font-bold text-[#3d4f5c] mb-8 text-center animate-fadeIn delay-400" style={{ opacity: 0 }}>
+        <section ref={relatedAnimation.ref} className="mt-20">
+          <h2 className={`text-3xl font-bold text-[#3d4f5c] mb-8 text-center transition-all duration-700 ${relatedAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             Other Products
           </h2>
           <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -126,8 +130,8 @@ export function ProductDetail() {
                 <Link
                   key={relatedProduct.id}
                   to={`/product/${relatedProduct.slug || relatedProduct.id}`}
-                  className="group animate-scaleIn"
-                  style={{ animationDelay: `${(index + 5) * 0.1}s`, opacity: 0 }}
+                  className={`group transition-all duration-700 ${relatedAnimation.isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+                  style={{ transitionDelay: `${index * 100}ms` }}
                 >
                   <div className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition">
                     {relatedProduct.imageUrl && (
@@ -141,7 +145,6 @@ export function ProductDetail() {
                       <h3 className="font-bold text-[#3d4f5c] group-hover:text-[#2d3f4c] transition">
                         {relatedProduct.name}
                       </h3>
-                      <p className="text-green-600 font-semibold mt-1">${relatedProduct.price}</p>
                     </div>
                   </div>
                 </Link>

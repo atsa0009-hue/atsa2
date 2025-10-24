@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useProducts } from '../hooks/useProducts';
 import { useAuth } from '../contexts/AuthContext';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 export function Home() {
   const { products, loading } = useProducts();
@@ -10,6 +11,12 @@ export function Home() {
   const navigate = useNavigate();
   const [showAllProducts, setShowAllProducts] = useState(false);
   const displayedProducts = showAllProducts ? products : products.slice(0, 3);
+
+  const heroAnimation = useScrollAnimation();
+  const productsAnimation = useScrollAnimation();
+  const servicesAnimation = useScrollAnimation();
+  const materialsAnimation = useScrollAnimation();
+  const contactAnimation = useScrollAnimation();
 
   return (
     <div className="min-h-screen bg-white">
@@ -47,9 +54,9 @@ export function Home() {
         </nav>
       </header>
 
-      <section className="container mx-auto px-6 py-32 mt-20 relative">
+      <section ref={heroAnimation.ref} className="container mx-auto px-6 py-32 mt-20 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-slate-400/30 via-blue-gray-400/20 to-transparent rounded-3xl"></div>
-        <div className="max-w-3xl relative z-10">
+        <div className={`max-w-3xl relative z-10 transition-all duration-700 ${heroAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <h1 className="text-5xl font-bold text-[#3d4f5c] mb-6 animate-fadeIn">
             Precision Manufacturing in Stainless Steel
           </h1>
@@ -62,7 +69,7 @@ export function Home() {
         </div>
       </section>
 
-      <section id="products" className="py-20 relative overflow-hidden">
+      <section ref={productsAnimation.ref} id="products" className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-gray-100 to-slate-100"></div>
         <div className="absolute inset-0 opacity-30" style={{
           backgroundImage: `
@@ -72,7 +79,7 @@ export function Home() {
           backgroundSize: '40px 40px'
         }}></div>
         <div className="container mx-auto px-6 relative z-10">
-          <h2 className="text-3xl font-bold text-[#3d4f5c] mb-12 text-center">Our Work</h2>
+          <h2 className={`text-3xl font-bold text-[#3d4f5c] mb-12 text-center transition-all duration-700 ${productsAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>Our Work</h2>
           {loading ? (
             <div className="text-center py-12">
               <div className="inline-block w-12 h-12 border-4 border-[#3d4f5c] border-t-transparent rounded-full animate-spin"></div>
@@ -82,15 +89,14 @@ export function Home() {
             {displayedProducts.map((product, index) => (
               <div
                 key={product.id}
-                className="relative group animate-scaleIn"
-                style={{ animationDelay: `${index * 0.1}s`, opacity: 0 }}
+                className={`relative group transition-all duration-700 ${productsAnimation.isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+                style={{ transitionDelay: `${index * 100}ms` }}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-700/80 to-slate-900/80 backdrop-blur-xl rounded-lg transform transition-transform group-hover:scale-105"></div>
                 <div className="relative bg-white/90 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition">
                   {product.imageUrl && <img src={product.imageUrl} alt={product.name} className="w-full h-64 object-cover" />}
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-[#3d4f5c] mb-2">{product.name}</h3>
-                    <p className="text-lg font-semibold text-green-600 mb-2">${product.price}</p>
                     <p className="text-gray-600 line-clamp-3">{product.description}</p>
                   </div>
                 </div>
@@ -111,11 +117,11 @@ export function Home() {
         </div>
       </section>
 
-      <section id="services" className="bg-gray-50 py-20">
+      <section ref={servicesAnimation.ref} id="services" className="bg-gray-50 py-20">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-[#3d4f5c] mb-12 text-center">Our Services</h2>
+          <h2 className={`text-3xl font-bold text-[#3d4f5c] mb-12 text-center transition-all duration-700 ${servicesAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>Our Services</h2>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="relative p-8 rounded-lg shadow-sm overflow-hidden group animate-slideInLeft" style={{ opacity: 0 }}>
+            <div className={`relative p-8 rounded-lg shadow-sm overflow-hidden group transition-all duration-700 ${servicesAnimation.isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
               <div className="absolute inset-0 bg-cover bg-center opacity-30 group-hover:opacity-40 transition" style={{backgroundImage: 'url(https://images.pexels.com/photos/1474993/pexels-photo-1474993.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750)'}}></div>
               <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-white/95"></div>
               <div className="relative z-10">
@@ -126,7 +132,7 @@ export function Home() {
                 </p>
               </div>
             </div>
-            <div className="relative p-8 rounded-lg shadow-sm overflow-hidden group animate-fadeIn delay-100" style={{ opacity: 0 }}>
+            <div className={`relative p-8 rounded-lg shadow-sm overflow-hidden group transition-all duration-700 delay-100 ${servicesAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <div className="absolute inset-0 bg-cover bg-center opacity-30 group-hover:opacity-40 transition" style={{backgroundImage: 'url(https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750)'}}></div>
               <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-white/95"></div>
               <div className="relative z-10">
@@ -137,7 +143,7 @@ export function Home() {
                 </p>
               </div>
             </div>
-            <div className="relative p-8 rounded-lg shadow-sm overflow-hidden group animate-slideInRight delay-200" style={{ opacity: 0 }}>
+            <div className={`relative p-8 rounded-lg shadow-sm overflow-hidden group transition-all duration-700 delay-200 ${servicesAnimation.isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
               <div className="absolute inset-0 bg-cover bg-center opacity-30 group-hover:opacity-40 transition" style={{backgroundImage: 'url(https://images.pexels.com/photos/257736/pexels-photo-257736.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750)'}}></div>
               <div className="absolute inset-0 bg-gradient-to-b from-white/90 to-white/95"></div>
               <div className="relative z-10">
@@ -152,10 +158,10 @@ export function Home() {
         </div>
       </section>
 
-      <section id="materials" className="py-20">
+      <section ref={materialsAnimation.ref} id="materials" className="py-20">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-[#3d4f5c] mb-12 text-center">Materials We Work With</h2>
-          <div className="max-w-2xl mx-auto">
+          <h2 className={`text-3xl font-bold text-[#3d4f5c] mb-12 text-center transition-all duration-700 ${materialsAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>Materials We Work With</h2>
+          <div className={`max-w-2xl mx-auto transition-all duration-700 delay-200 ${materialsAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <ul className="space-y-4">
               <li className="flex items-center gap-3">
                 <CheckCircle className="w-6 h-6 text-[#3d4f5c] flex-shrink-0" />
@@ -182,8 +188,8 @@ export function Home() {
         </div>
       </section>
 
-      <section id="contact" className="bg-[#3d4f5c] text-white py-20">
-        <div className="container mx-auto px-6 text-center">
+      <section ref={contactAnimation.ref} id="contact" className="bg-[#3d4f5c] text-white py-20">
+        <div className={`container mx-auto px-6 text-center transition-all duration-700 ${contactAnimation.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl font-bold mb-6">Ready to Start Your Project?</h2>
           <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
             Contact us today to discuss your manufacturing needs and receive a detailed quote.
